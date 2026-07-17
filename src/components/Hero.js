@@ -166,7 +166,7 @@ function AiIllustration() {
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden px-4 py-20  sm:px-6 sm:pt-28  lg:px-8 ">
+    <section className="relative overflow-hidden px-4 pb-16 sm:px-6 sm:pt-28  lg:px-8 ">
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/80 via-white to-white dark:from-gray-950 dark:via-gray-950 dark:to-gray-950" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.15),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.08),transparent)]" />
@@ -191,7 +191,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="mx-auto max-w-7xl pt-10!">
+      <div className="mx-auto max-w-7xl">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
