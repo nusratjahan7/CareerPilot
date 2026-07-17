@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -16,12 +17,17 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full bg-gradient-to-r from-white/95 via-white/90 to-white/95 backdrop-blur-xl dark:from-gray-950/95 dark:via-gray-950/90 dark:to-gray-950/95 shadow-[0_1px_0_rgba(59,130,246,0.15),0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_0_rgba(59,130,246,0.15),0_4px_20px_rgba(0,0,0,0.15)]">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="text-xl font-bold tracking-tight text-gray-900 dark:text-white"
-        >
-          CareerPilot
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <Link
+            href="/"
+            className="text-xl font-bold tracking-tight text-gray-900 dark:text-white"
+          >
+            CareerPilot
+          </Link>
+        </div>
 
         <div className="hidden items-center gap-1 lg:flex">
           {navLinks.map(({ href, label }) => (
