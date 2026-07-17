@@ -166,10 +166,32 @@ function AiIllustration() {
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden px-4 pt-20 pb-16 sm:px-6 sm:pt-28 lg:px-8 lg:pb-24">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100 via-transparent to-transparent opacity-60 dark:from-blue-950/30" />
+    <section className="relative overflow-hidden px-4 py-20  sm:px-6 sm:pt-28  lg:px-8 ">
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/80 via-white to-white dark:from-gray-950 dark:via-gray-950 dark:to-gray-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.15),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.08),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_50%_at_80%_80%,rgba(147,51,234,0.1),transparent)] dark:bg-[radial-gradient(ellipse_50%_50%_at_80%_80%,rgba(147,51,234,0.06),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_50%_at_20%_80%,rgba(59,130,246,0.08),transparent)] dark:bg-[radial-gradient(ellipse_50%_50%_at_20%_80%,rgba(59,130,246,0.04),transparent)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(59,130,246,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(59,130,246,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,rgba(59,130,246,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(59,130,246,0.04)_1px,transparent_1px)]" />
 
-      <div className="mx-auto max-w-7xl">
+        <motion.div
+          animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute left-1/4 top-1/4 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl"
+        />
+        <motion.div
+          animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute right-1/4 top-1/3 h-96 w-96 rounded-full bg-purple-400/10 blur-3xl"
+        />
+        <motion.div
+          animate={{ x: [0, 15, 0], y: [0, 15, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-1/4 left-1/3 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl"
+        />
+      </div>
+
+      <div className="mx-auto max-w-7xl pt-10!">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
