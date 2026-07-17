@@ -2,6 +2,8 @@ import Hero from "@/components/Hero";
 import FeaturesCards from "@/components/FeaturesCards";
 import StatsCounter from "@/components/StatsCounter";
 import Reviews from "@/components/Reviews";
+import FaqAccordion from "@/components/FaqAccordion";
+import Newsletter from "@/components/Newsletter";
 
 export default function Home() {
   return (
@@ -10,6 +12,8 @@ export default function Home() {
       <FeaturesCards />
       <StatsCounter />
       <Reviews />
+      <FaqAccordion />
+      <Newsletter />
     </>
   );
 }
