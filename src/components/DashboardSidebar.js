@@ -1,198 +1,139 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
+"use client"
+import { useState } from 'react';
 import {
-  Sparkles,
-  MessageSquare,
-  FileText,
-  PlusCircle,
+  Home,
+  Plus,
   Briefcase,
-  Users,
-  LayoutDashboard,
+  BrainCircuit,
+  MessageSquare,
   User,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
+  Settings,
   Menu,
-  X,
-} from "lucide-react";
+  X
+} from 'lucide-react';
 
-const userLinks = [
-  { href: "/dashboard/user", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/user/ai-career", label: "AI Career Recommendations", icon: Sparkles },
-  { href: "/dashboard/user/ai-chat", label: "AI Chat", icon: MessageSquare },
-  { href: "/dashboard/user/applications", label: "My Applications", icon: FileText },
-  { href: "/dashboard/user/profile", label: "My Profile", icon: User },
-];
+const DashboardSidebar = () => {
+  const [activeItem, setActiveItem] = useState('Dashboard');
+  const [isOpen, setIsOpen] = useState(false);
 
-const adminLinks = [
-  { href: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/admin/add-career", label: "Add Career", icon: PlusCircle },
-  { href: "/dashboard/admin/manage-career", label: "Manage Career", icon: Briefcase },
-  { href: "/dashboard/admin/users", label: "User Manage", icon: Users },
-  { href: "/dashboard/admin/profile", label: "My Profile", icon: User },
-];
+  const menuItems = [
+    { name: 'Dashboard', icon: Home, path: '/dashboard' },
+    { name: 'Add Career', icon: Plus, path: '/dashboard/career/add' },
+    { name: 'Manage Careers', icon: Briefcase, path: '/dashboard/career/manage' },
+    { name: 'AI Recommendation', icon: BrainCircuit, path: '/dashboard/ai/recommendation' },
+    { name: 'AI Chat', icon: MessageSquare, path: '/dashboard/ai-chat' },
+    { name: 'Profile', icon: User, path: '/dashboard/profile' },
+    { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
+  ];
 
-export default function DashboardSidebar() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const { user, logout, hasRole } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
-  const links = hasRole("admin") ? adminLinks : userLinks;
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setMobileOpen(false);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [mobileOpen]);
-
-  const getUserInitials = (name) => {
-    if (!name) return "?";
-    const names = name.split(" ");
-    if (names.length === 1) return names[0][0].toUpperCase();
-    return names[0][0].toUpperCase() + names[names.length - 1][0].toUpperCase();
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    router.push("/");
-    setMobileOpen(false);
-  };
-
-  const SidebarContent = () => (
+  return (
     <>
-      <div className={`flex items-center gap-3 px-4 py-4 border-b border-gray-200 dark:border-gray-800 ${collapsed ? "justify-center" : "justify-between"}`}>
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">CareerPilot</span>
-          </div>
-        )}
-        {collapsed && (
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-        )}
+      {/* --- MOBILE TOP HEADER (Hidden on Desktop) --- */}
+      <div className="md:hidden w-full h-16 bg-[#0e0e10]/90 backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-6 sticky top-0 z-40">
+
         <button
-          onClick={() => setMobileOpen(false)}
-          className="lg:hidden p-1 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+          onClick={toggleSidebar}
+          className="p-2 text-gray-400 hover:text-white rounded-xl bg-white/[0.02] border border-white/[0.05]"
+          aria-label="Toggle navigation menu"
         >
-          <X className="w-5 h-5" />
+          <Menu className="w-5 h-5" />
         </button>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="hidden lg:flex p-1 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
-        >
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white">
+            <User className="w-4 h-4" />
+          </div>
+          <span className="text-white font-medium text-sm">Alex Johnson</span>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4">
-        <nav className="px-3 space-y-1">
-          {links.map(({ href, label, icon: Icon }) => {
-            const isActive = pathname === href;
+      {/* --- MOBILE BACKDROP --- */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
+          onClick={toggleSidebar}
+        />
+      )}
+
+      {/* --- SIDEBAR PANEL (Responsive Drawer to Static Layout) --- */}
+      <div className={`
+        fixed inset-y-0 left-0 z-50 w-72 h-full bg-gradient-to-b from-[#0e0e10] to-[#050506] text-gray-400 flex flex-col p-6 font-sans border-r border-white/[0.06] transition-transform duration-300 ease-in-out
+        md:static md:translate-x-0
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+
+        {/* Ambient Decorative Background Glows */}
+        <div className="absolute top-[-20%] left-[-20%] w-72 h-72 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-20%] w-72 h-72 bg-purple-500/5 rounded-full blur-[80px] pointer-events-none" />
+
+        {/* Profile Card & Close Action Wrapper */}
+        <div className="flex items-center justify-between gap-2 relative z-10 shrink-0">
+          <a
+            href="/dashboard/profile"
+            className="flex-1 flex items-center gap-4 p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md hover:bg-white/[0.04] transition-all duration-300"
+            onClick={() => setIsOpen(false)}
+          >
+            <div className="relative">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <User className="w-5 h-5" />
+              </div>
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#0e0e10] rounded-full" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-white font-medium text-sm tracking-wide truncate">
+                Alex Johnson
+              </h2>
+            </div>
+          </a>
+
+          {/* Close button inside mobile menu */}
+          <button
+            onClick={toggleSidebar}
+            className="md:hidden p-2.5 text-gray-400 hover:text-white rounded-xl bg-white/[0.02] border border-white/[0.05]"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="h-[1px] bg-gradient-to-r from-transparent via-white/[0.06] to-transparent my-6 shrink-0 relative z-10" />
+
+        {/* Navigation List */}
+        <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1 relative z-10">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeItem === item.name;
+
             return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMobileOpen(false)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all
-                  ${isActive
-                    ? "bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
-                  }
-                  ${collapsed ? "justify-center" : ""}`}
-                title={collapsed ? label : undefined}
+              <a
+                key={item.name}
+                href={item.path}
+                onClick={() => {
+                  setActiveItem(item.name);
+                  setIsOpen(false); // Auto-close drawer on mobile navigation click
+                }}
+                className={`group flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-l-2 ${isActive
+                  ? 'text-white bg-gradient-to-r from-white/[0.04] to-transparent border-blue-500 pl-3.5 shadow-sm'
+                  : 'hover:text-gray-200 hover:bg-white/[0.02] border-transparent'
+                  }`}
               >
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? "text-blue-600 dark:text-blue-400" : ""}`} />
-                {!collapsed && <span>{label}</span>}
-              </Link>
+                <Icon
+                  className={`w-4 h-4 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-300'
+                    }`}
+                />
+                <span className="flex-1 truncate">{item.name}</span>
+
+                {isActive && (
+                  <span className="w-1 h-1 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
+                )}
+              </a>
             );
           })}
         </nav>
       </div>
-
-      <div className={`border-t border-gray-200 dark:border-gray-800 p-3 ${collapsed ? "px-2" : ""}`}>
-        {!collapsed ? (
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm shrink-0">
-              {getUserInitials(user?.name || user?.email)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                {user?.name || user?.email}
-              </p>
-              <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                {hasRole("admin") ? "Admin" : "User"}
-              </p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="p-1.5 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors"
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-950/30 transition-colors"
-            title="Sign Out"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
-        )}
-      </div>
     </>
   );
+};
 
-  return (
-    <>
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-40 lg:hidden inline-flex items-center justify-center rounded-lg p-2 text-gray-700 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
-        aria-label="Open sidebar"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
-
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      <aside
-        className={`fixed top-0 left-0 z-50 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col shrink-0
-          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:sticky lg:top-0 lg:translate-x-0 lg:h-screen
-          ${collapsed ? "lg:w-20" : "lg:w-64"}
-          w-64`}
-      >
-        <SidebarContent />
-      </aside>
-    </>
-  );
-}
+export default DashboardSidebar;

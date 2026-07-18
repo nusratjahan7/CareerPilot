@@ -15,7 +15,7 @@ const navLinks = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, loading, logout, hasRole } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -26,26 +26,10 @@ export default function Navbar() {
     return names[0][0].toUpperCase() + names[names.length - 1][0].toUpperCase();
   };
 
-  const getUserAvatarUrl = (email) => {
-    if (!email) return null;
-    const seed = email.split("@")[0];
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(seed)}&background=random&color=fff&size=128`;
-  };
-
   const handleLogout = async () => {
     await logout();
     router.push("/");
     setDropdownOpen(false);
-  };
-
-  const getDashboardLink = () => {
-    if (hasRole("admin")) return "/dashboard/admin";
-    return "/dashboard/user";
-  };
-
-  const getProfileLink = () => {
-    if (hasRole("admin")) return "/dashboard/admin/profile";
-    return "/dashboard/user/profile";
   };
 
   return (
@@ -63,6 +47,7 @@ export default function Navbar() {
           </Link>
         </div>
 
+        {/* Desktop Navigation Links */}
         <div className="hidden items-center gap-1 lg:flex">
           {navLinks.map(({ href, label }) => (
             <Link
@@ -75,6 +60,7 @@ export default function Navbar() {
           ))}
         </div>
 
+        {/* Desktop User / Auth Actions */}
         <div className="hidden items-center gap-2 lg:flex">
           {loading ? (
             <div className="w-20 h-8 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
@@ -115,14 +101,14 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-100 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800 z-50">
                   <Link
-                    href={getDashboardLink()}
+                    href="/dashboard"
                     onClick={() => setDropdownOpen(false)}
                     className="block rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
                   >
                     Dashboard
                   </Link>
                   <Link
-                    href={getProfileLink()}
+                    href="/dashboard/profile"
                     onClick={() => setDropdownOpen(false)}
                     className="block rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
                   >
@@ -130,10 +116,7 @@ export default function Navbar() {
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left rounded-md px-4 py-2 text-sm font-medium transition-colors
-                      text-red-600 dark:text-red-400
-                      hover:bg-red-50 dark:hover:bg-red-950/30
-                      hover:text-red-700 dark:hover:text-red-300"
+                    className="w-full text-left rounded-md px-4 py-2 text-sm font-medium transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700 dark:hover:text-red-300"
                   >
                     Sign Out
                   </button>
@@ -158,6 +141,7 @@ export default function Navbar() {
           )}
         </div>
 
+        {/* Mobile Menu Toggler */}
         <button
           onClick={() => setMenuOpen((prev) => !prev)}
           className="inline-flex items-center justify-center rounded-md p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white lg:hidden"
@@ -175,6 +159,7 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* Mobile Collapse Dropdown View */}
       {menuOpen && (
         <div className="border-t border-gray-200/50 bg-gradient-to-b from-white to-white/95 px-4 pb-4 pt-2 backdrop-blur-xl dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-950/95 lg:hidden">
           {navLinks.map(({ href, label }) => (
@@ -187,6 +172,7 @@ export default function Navbar() {
               {label}
             </Link>
           ))}
+
           {loading ? (
             <div className="mt-4 h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
           ) : user ? (
@@ -216,16 +202,17 @@ export default function Navbar() {
                   </p>
                 </div>
               </div>
+
               <div className="mt-2 flex flex-col gap-1 border-t border-gray-200/50 pt-2 dark:border-gray-800/50">
                 <Link
-                  href={getDashboardLink()}
+                  href="/dashboard"
                   onClick={() => setMenuOpen(false)}
                   className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
                 >
                   Dashboard
                 </Link>
                 <Link
-                  href={getProfileLink()}
+                  href="/dashboard/profile"
                   onClick={() => setMenuOpen(false)}
                   className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
                 >
@@ -236,10 +223,7 @@ export default function Navbar() {
                     handleLogout();
                     setMenuOpen(false);
                   }}
-                  className="block w-full text-left rounded-md px-3 py-2 text-base font-medium transition-colors
-                    text-red-600 dark:text-red-400
-                    hover:bg-red-50 dark:hover:bg-red-950/30
-                    hover:text-red-700 dark:hover:text-red-300"
+                  className="block w-full text-left rounded-md px-3 py-2 text-base font-medium transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700 dark:hover:text-red-300"
                 >
                   Sign Out
                 </button>
