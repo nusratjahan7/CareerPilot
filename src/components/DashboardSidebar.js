@@ -18,9 +18,9 @@ const DashboardSidebar = () => {
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
-    { name: 'Add Career', icon: Plus, path: '/dashboard/career/add' },
-    { name: 'Manage Careers', icon: Briefcase, path: '/dashboard/career/manage' },
-    { name: 'AI Recommendation', icon: BrainCircuit, path: '/dashboard/ai/recommendation' },
+    { name: 'Add Career', icon: Plus, path: '/dashboard/add' },
+    { name: 'Manage Careers', icon: Briefcase, path: '/dashboard/manage' },
+    { name: 'AI Recommendation', icon: BrainCircuit, path: '/dashboard/recommendation' },
     { name: 'AI Chat', icon: MessageSquare, path: '/dashboard/ai-chat' },
     { name: 'Profile', icon: User, path: '/dashboard/profile' },
     { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
@@ -58,7 +58,7 @@ const DashboardSidebar = () => {
 
       {/* --- SIDEBAR PANEL (Responsive Drawer to Static Layout) --- */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-72 h-full bg-gradient-to-b from-[#0e0e10] to-[#050506] text-gray-400 flex flex-col p-6 font-sans border-r border-white/[0.06] transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-50 md:z-0 w-72 min-h-screen bg-gradient-to-b from-[#0e0e10] to-[#050506] text-gray-400 flex flex-col p-6 font-sans border-r border-white/[0.06] transition-transform duration-300 ease-in-out
         md:static md:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
