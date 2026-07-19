@@ -96,8 +96,7 @@ export default function CareerAdd() {
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-8 font-sans text-gray-900 dark:text-gray-100">
-            {/* ডার্ক মোড টোস্টার */}
-            <Toaster theme="dark" position="top-center" closeButton richColors />
+
 
             {/* Page Header */}
             <div className="mb-8">

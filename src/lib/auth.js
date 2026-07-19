@@ -9,10 +9,6 @@ const db = client.db(process.env.AUTH_DB_NAME);
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, { databaseName: process.env.AUTH_DB_NAME }),
-  plugins: [
-    nextCookies(),
-    bearer(),
-  ],
   trustedOrigins: [process.env.BETTER_AUTH_URL],
   secret: process.env.BETTER_AUTH_SECRET,
   emailAndPassword: {
@@ -25,4 +21,8 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     },
   },
+  plugins: [
+    bearer(),
+    nextCookies()
+  ],
 });

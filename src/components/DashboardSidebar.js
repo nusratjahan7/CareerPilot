@@ -24,7 +24,7 @@ const DashboardSidebar = () => {
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
     { name: 'Add Career', icon: Plus, path: '/dashboard/add' },
     { name: 'Manage Careers', icon: Briefcase, path: '/dashboard/manage' },
-    { name: 'AI Recommendation', icon: BrainCircuit, path: '/dashboard/recommendation' },
+
     { name: 'AI Chat', icon: MessageSquare, path: '/dashboard/ai-chat' },
     { name: 'Profile', icon: User, path: '/dashboard/profile' },
     { name: 'My Applications', icon: Dock, path: '/dashboard/applications' },
