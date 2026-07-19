@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
+import { authClient } from '@/lib/auth-client';
 
 const Details = () => {
     const params = useParams();
@@ -10,12 +11,15 @@ const Details = () => {
 
     const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
+
+    const { data: session } = authClient.useSession();
+    const userId = session?.user?.id || session?.user?._id || null;
+
     const [career, setCareer] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
 
-    // Application Form States
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({ fullName: '', email: '', resumeUrl: '', coverLetter: '' });
     const [submitting, setSubmitting] = useState(false);
@@ -59,6 +63,12 @@ const Details = () => {
 
 
     const handleSaveCareer = async () => {
+
+        if (!userId) {
+            toast.error("Please login to save this career!");
+            return;
+        }
+
         if (isSaved) {
             setIsSaved(false);
             toast.dismiss();
@@ -68,13 +78,13 @@ const Details = () => {
             return;
         }
 
-
         const savePromise = new Promise(async (resolve, reject) => {
             try {
                 const res = await fetch(`${baseURL}/api/saved-careers`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ careerId: id }),
+
+                    body: JSON.stringify({ careerId: id, userId: userId }),
                 });
 
                 const data = await res.json();
@@ -99,27 +109,43 @@ const Details = () => {
 
     const handleApplySubmit = async (e) => {
         e.preventDefault();
+
+
+        const currentUserId = session?.user?.id || session?.user?._id || session?.session?.userId;
+
+        console.log("Checking session object:", session);
+        console.log("Submitting with User ID:", currentUserId);
+
+        if (!currentUserId) {
+            toast.error("You must be logged in to apply! Your session was not found.");
+            return;
+        }
+
         setSubmitting(true);
 
         const submitPromise = new Promise(async (resolve, reject) => {
             try {
+                const bodyData = {
+                    careerId: id,
+                    userId: currentUserId,
+                    fullName: formData.fullName,
+                    email: formData.email,
+                    resumeUrl: formData.resumeUrl,
+                    coverLetter: formData.coverLetter || ""
+                };
+
+                console.log("Sending payload to backend:", bodyData);
+
                 const response = await fetch(`${baseURL}/api/applications`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        careerId: id,
-                        fullName: formData.fullName,
-                        email: formData.email,
-                        resumeUrl: formData.resumeUrl,
-                        coverLetter: formData.coverLetter
-                    }),
+                    body: JSON.stringify(bodyData),
                 });
 
                 const data = await response.json();
                 if (!response.ok) {
                     return reject(data.error || 'Failed to submit');
                 }
-
                 setIsModalOpen(false);
                 setFormData({ fullName: '', email: '', resumeUrl: '', coverLetter: '' });
                 resolve(data);
@@ -180,10 +206,10 @@ const Details = () => {
                         <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">
                             {career.category}
                         </span>
-                        <h1 className="text-4xl md:text-5xl font-bold mt-3 tracking-tight pb-10 text-white">{career.title}</h1>
+                        <h1 className="text-4xl md:text-5xl font-bold mt-3 tracking-tight md:pb-10 text-white">{career.title}</h1>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center pb-8 md:pb-0 gap-4">
                         <button
                             onClick={handleSaveCareer}
                             className={`px-6 py-3 font-semibold rounded-full transition shadow-sm border text-sm ${isSaved
