@@ -7,7 +7,6 @@ import {
   Home,
   Plus,
   Briefcase,
-  BrainCircuit,
   MessageSquare,
   User,
   Menu,
@@ -15,10 +14,14 @@ import {
   Dock,
   Bookmark
 } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
 
 const DashboardSidebar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
@@ -48,7 +51,7 @@ const DashboardSidebar = () => {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white">
             <User className="w-4 h-4" />
           </div>
-          <span className="text-white font-medium text-sm">Alex Johnson</span>
+          <span className="text-white font-medium text-sm">{user?.name}</span>
         </div>
       </div>
 
@@ -86,7 +89,7 @@ const DashboardSidebar = () => {
             </div>
             <div className="min-w-0">
               <h2 className="text-white font-medium text-sm tracking-wide truncate">
-                Alex Johnson
+                {user?.name}
               </h2>
             </div>
           </Link>
