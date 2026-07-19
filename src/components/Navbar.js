@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -15,7 +15,8 @@ const navLinks = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, loading, logout } = useAuth();
+  const { data: session, isPending: loading } = authClient.useSession();
+  const user = session?.user;
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -27,7 +28,7 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    await authClient.signOut();
     router.push("/");
     setDropdownOpen(false);
   };

@@ -3,7 +3,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
 import { Toaster } from "sonner";
-import { AuthProvider } from "@/lib/auth-context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,12 +28,12 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         <SmoothScroll>
-          <AuthProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <Toaster richColors position="top-right" toastOptions={{ className: "rounded-xl" }} />
-          </AuthProvider>
+
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <Toaster richColors position="top-right" toastOptions={{ className: "rounded-xl" }} />
+
         </SmoothScroll>
       </body>
     </html>

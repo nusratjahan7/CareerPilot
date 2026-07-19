@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
 
 export default function CareerAdd() {
+    const { data: sessionData } = authClient.useSession();
+
     const initialFormState = {
         title: '',
         category: '',
@@ -11,7 +14,11 @@ export default function CareerAdd() {
         fullDescription: '',
         salaryRange: '',
         experienceLevel: '',
-        coverImage: ''
+        location: '',
+        coverImage: '',
+        // নতুন ফিল্ড দুটি যোগ করা হলো
+        responsibilities: '',
+        skills: ''
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -34,28 +41,42 @@ export default function CareerAdd() {
         setStatus({ type: '', message: '' });
 
         try {
-            const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+            const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
-            const { data: tokenData } = await authClient.token();
+            const tokenResponse = await authClient.token();
+            const token = tokenResponse?.data?.token;
+
+            if (!sessionData && !token) {
+                throw new Error("You must be logged in to submit a career listing.");
+            }
 
             const headers = {
-                "content-type": "application/json",
+                "Content-Type": "application/json",
+                ...(token && { "Authorization": `Bearer ${token}` })
             };
 
-            if (tokenData?.token) {
-                headers["authorization"] = `Bearer ${tokenData.token}`;
-            }
+            // ব্যাকএন্ডে পাঠানোর আগে রস্ট্রাকচারিং লজিক (কমা বা নিউলাইন দিয়ে অ্যারে তৈরি)
+            const submissionData = {
+                ...formData,
+                responsibilities: formData.responsibilities
+                    ? formData.responsibilities.split('\n').map(item => item.trim()).filter(Boolean)
+                    : [],
+                skills: formData.skills
+                    ? formData.skills.split(',').map(item => item.trim()).filter(Boolean)
+                    : []
+            };
 
             const response = await fetch(`${baseURL}/api/careers`, {
                 method: 'POST',
                 headers: headers,
-                body: JSON.stringify(formData),
+                body: JSON.stringify(submissionData), // প্রসেসড ডেটা পাঠানো হচ্ছে
             });
 
-            const data = await response.json();
+            const textData = await response.text();
+            const data = textData ? JSON.parse(textData) : {};
 
             if (!response.ok) {
-                throw new Error(data.error || 'Something went wrong');
+                throw new Error(data.error || 'Something went wrong while submitting.');
             }
 
             setStatus({ type: 'success', message: 'Career listing successfully submitted!' });
@@ -80,11 +101,12 @@ export default function CareerAdd() {
 
                 {/* Status Messaging banner */}
                 {status.message && (
-                    <div className={`p-4 rounded-xl text-sm font-medium ${status.type === 'success'
+                    <div className={`p-4 rounded-xl text-sm font-medium flex items-center gap-2 ${status.type === 'success'
                         ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                         : 'bg-red-500/10 text-red-600 dark:text-red-400'
                         }`}>
-                        {status.message}
+                        {status.type === 'error' && <AlertCircle className="w-4 h-4 shrink-0" />}
+                        <span>{status.message}</span>
                     </div>
                 )}
 
@@ -99,7 +121,7 @@ export default function CareerAdd() {
                             value={formData.title}
                             onChange={handleChange}
                             placeholder="e.g. Cloud Solutions Architect"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white"
                         />
                     </div>
 
@@ -110,7 +132,7 @@ export default function CareerAdd() {
                             required
                             value={formData.category}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat"
                         >
                             <option value="" disabled hidden>Select category</option>
                             <option value="Technology">Technology & Engineering</option>
@@ -131,7 +153,7 @@ export default function CareerAdd() {
                         value={formData.shortDescription}
                         onChange={handleChange}
                         placeholder="One compelling sentence describing this career..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white"
                     />
                 </div>
 
@@ -141,11 +163,39 @@ export default function CareerAdd() {
                     <textarea
                         name="fullDescription"
                         required
-                        rows={5}
+                        rows={4}
                         value={formData.fullDescription}
                         onChange={handleChange}
                         placeholder="Provide a detailed overview of the career, day-to-day work, industry context..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all resize-none text-gray-900 dark:text-white"
+                    />
+                </div>
+
+                {/* নতুন যুক্ত হওয়া Row: Responsibilities */}
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Core Responsibilities *</label>
+                    <textarea
+                        name="responsibilities"
+                        required
+                        rows={4}
+                        value={formData.responsibilities}
+                        onChange={handleChange}
+                        placeholder="Enter each responsibility on a new line&#10;- Design cloud infrastructure&#10;- Optimize database performance"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all resize-none text-gray-900 dark:text-white"
+                    />
+                </div>
+
+                {/* নতুন যুক্ত হওয়া Row: Key Skills */}
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Key Skills *</label>
+                    <input
+                        type="text"
+                        name="skills"
+                        required
+                        value={formData.skills}
+                        onChange={handleChange}
+                        placeholder="Separate skills with commas (e.g. React, Node.js, AWS, Kubernetes)"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white"
                     />
                 </div>
 
@@ -160,7 +210,7 @@ export default function CareerAdd() {
                             value={formData.salaryRange}
                             onChange={handleChange}
                             placeholder="e.g. $90,000 – $150,000"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white"
                         />
                     </div>
 
@@ -171,7 +221,7 @@ export default function CareerAdd() {
                             required
                             value={formData.experienceLevel}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat"
                         >
                             <option value="" disabled hidden>Select level</option>
                             <option value="Entry">Entry Level</option>
@@ -182,17 +232,35 @@ export default function CareerAdd() {
                     </div>
                 </div>
 
-                {/* Row 5: Cover Image URL */}
-                <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Cover Image URL</label>
-                    <input
-                        type="url"
-                        name="coverImage"
-                        value={formData.coverImage}
-                        onChange={handleChange}
-                        placeholder="https://images.unsplash.com/..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all"
-                    />
+                {/* Row 5: Location & Cover Image URL */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Location Setting *</label>
+                        <select
+                            name="location"
+                            required
+                            value={formData.location}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat"
+                        >
+                            <option value="" disabled hidden>Select layout</option>
+                            <option value="Remote">Remote</option>
+                            <option value="On-site">On-site</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Cover Image URL</label>
+                        <input
+                            type="url"
+                            name="coverImage"
+                            value={formData.coverImage}
+                            onChange={handleChange}
+                            placeholder="https://images.unsplash.com/..."
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#222226] bg-gray-50/50 dark:bg-[#18181c] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-500 transition-all text-gray-900 dark:text-white"
+                        />
+                    </div>
                 </div>
 
                 {/* Actions Row */}
