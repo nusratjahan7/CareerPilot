@@ -1,5 +1,8 @@
-"use client"
-import { useState } from 'react';
+"use client";
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Home,
   Plus,
@@ -7,13 +10,14 @@ import {
   BrainCircuit,
   MessageSquare,
   User,
-  Settings,
   Menu,
-  X
+  X,
+  Dock,
+  Bookmark
 } from 'lucide-react';
 
 const DashboardSidebar = () => {
-  const [activeItem, setActiveItem] = useState('Dashboard');
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
@@ -23,7 +27,8 @@ const DashboardSidebar = () => {
     { name: 'AI Recommendation', icon: BrainCircuit, path: '/dashboard/recommendation' },
     { name: 'AI Chat', icon: MessageSquare, path: '/dashboard/ai-chat' },
     { name: 'Profile', icon: User, path: '/dashboard/profile' },
-    { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
+    { name: 'My Applications', icon: Dock, path: '/dashboard/applications' },
+    { name: 'Saved', icon: Bookmark, path: '/dashboard/saved' },
   ];
 
   const toggleSidebar = () => setIsOpen(!isOpen);
@@ -32,7 +37,6 @@ const DashboardSidebar = () => {
     <>
       {/* --- MOBILE TOP HEADER (Hidden on Desktop) --- */}
       <div className="md:hidden w-full h-16 bg-[#0e0e10]/90 backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-6 sticky top-0 z-40">
-
         <button
           onClick={toggleSidebar}
           className="p-2 text-gray-400 hover:text-white rounded-xl bg-white/[0.02] border border-white/[0.05]"
@@ -56,20 +60,20 @@ const DashboardSidebar = () => {
         />
       )}
 
-      {/* --- SIDEBAR PANEL (Responsive Drawer to Static Layout) --- */}
+      {/* --- SIDEBAR PANEL --- */}
       <div className={`
         fixed inset-y-0 left-0 z-50 md:z-0 w-72 min-h-screen bg-gradient-to-b from-[#0e0e10] to-[#050506] text-gray-400 flex flex-col p-6 font-sans border-r border-white/[0.06] transition-transform duration-300 ease-in-out
         md:static md:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
 
-        {/* Ambient Decorative Background Glows */}
+        {/* Decorative Background Glows */}
         <div className="absolute top-[-20%] left-[-20%] w-72 h-72 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
         <div className="absolute bottom-[-20%] right-[-20%] w-72 h-72 bg-purple-500/5 rounded-full blur-[80px] pointer-events-none" />
 
         {/* Profile Card & Close Action Wrapper */}
         <div className="flex items-center justify-between gap-2 relative z-10 shrink-0">
-          <a
+          <Link
             href="/dashboard/profile"
             className="flex-1 flex items-center gap-4 p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md hover:bg-white/[0.04] transition-all duration-300"
             onClick={() => setIsOpen(false)}
@@ -85,7 +89,7 @@ const DashboardSidebar = () => {
                 Alex Johnson
               </h2>
             </div>
-          </a>
+          </Link>
 
           {/* Close button inside mobile menu */}
           <button
@@ -103,16 +107,15 @@ const DashboardSidebar = () => {
         <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1 relative z-10">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeItem === item.name;
+
+
+            const isActive = pathname === item.path;
 
             return (
-              <a
+              <Link
                 key={item.name}
                 href={item.path}
-                onClick={() => {
-                  setActiveItem(item.name);
-                  setIsOpen(false); // Auto-close drawer on mobile navigation click
-                }}
+                onClick={() => setIsOpen(false)}
                 className={`group flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-l-2 ${isActive
                   ? 'text-white bg-gradient-to-r from-white/[0.04] to-transparent border-blue-500 pl-3.5 shadow-sm'
                   : 'hover:text-gray-200 hover:bg-white/[0.02] border-transparent'
@@ -127,7 +130,7 @@ const DashboardSidebar = () => {
                 {isActive && (
                   <span className="w-1 h-1 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
                 )}
-              </a>
+              </Link>
             );
           })}
         </nav>

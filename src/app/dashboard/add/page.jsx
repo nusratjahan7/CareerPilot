@@ -3,8 +3,10 @@
 import React, { useState } from 'react';
 import { Plus, AlertCircle } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { toast, Toaster } from 'sonner';
 
 export default function CareerAdd() {
+
     const { data: sessionData } = authClient.useSession();
 
     const initialFormState = {
@@ -16,7 +18,6 @@ export default function CareerAdd() {
         experienceLevel: '',
         location: '',
         coverImage: '',
-        // নতুন ফিল্ড দুটি যোগ করা হলো
         responsibilities: '',
         skills: ''
     };
@@ -39,6 +40,7 @@ export default function CareerAdd() {
         e.preventDefault();
         setLoading(true);
         setStatus({ type: '', message: '' });
+        toast.dismiss();
 
         try {
             const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
@@ -46,7 +48,7 @@ export default function CareerAdd() {
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token;
 
-            if (!sessionData && !token) {
+            if (!sessionData?.user) {
                 throw new Error("You must be logged in to submit a career listing.");
             }
 
@@ -55,9 +57,11 @@ export default function CareerAdd() {
                 ...(token && { "Authorization": `Bearer ${token}` })
             };
 
-            // ব্যাকএন্ডে পাঠানোর আগে রস্ট্রাকচারিং লজিক (কমা বা নিউলাইন দিয়ে অ্যারে তৈরি)
             const submissionData = {
                 ...formData,
+                userId: sessionData.user.id,
+                creatorEmail: sessionData.user.email,
+                creatorName: sessionData.user.name,
                 responsibilities: formData.responsibilities
                     ? formData.responsibilities.split('\n').map(item => item.trim()).filter(Boolean)
                     : [],
@@ -69,7 +73,7 @@ export default function CareerAdd() {
             const response = await fetch(`${baseURL}/api/careers`, {
                 method: 'POST',
                 headers: headers,
-                body: JSON.stringify(submissionData), // প্রসেসড ডেটা পাঠানো হচ্ছে
+                body: JSON.stringify(submissionData),
             });
 
             const textData = await response.text();
@@ -80,9 +84,11 @@ export default function CareerAdd() {
             }
 
             setStatus({ type: 'success', message: 'Career listing successfully submitted!' });
+            toast.success('Career listing successfully submitted! 🎉');
             setFormData(initialFormState);
         } catch (error) {
             setStatus({ type: 'error', message: error.message });
+            toast.error(error.message);
         } finally {
             setLoading(false);
         }
@@ -90,6 +96,9 @@ export default function CareerAdd() {
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-8 font-sans text-gray-900 dark:text-gray-100">
+            {/* ডার্ক মোড টোস্টার */}
+            <Toaster theme="dark" position="top-center" closeButton richColors />
+
             {/* Page Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold tracking-tight text-[#0f172a] dark:text-white">Add New Career</h1>
@@ -171,7 +180,7 @@ export default function CareerAdd() {
                     />
                 </div>
 
-                {/* নতুন যুক্ত হওয়া Row: Responsibilities */}
+                {/* Core Responsibilities */}
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Core Responsibilities *</label>
                     <textarea
@@ -185,7 +194,7 @@ export default function CareerAdd() {
                     />
                 </div>
 
-                {/* নতুন যুক্ত হওয়া Row: Key Skills */}
+                {/* Key Skills */}
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Key Skills *</label>
                     <input
@@ -282,7 +291,6 @@ export default function CareerAdd() {
                         Clear Form
                     </button>
                 </div>
-
             </form>
         </div>
     );
