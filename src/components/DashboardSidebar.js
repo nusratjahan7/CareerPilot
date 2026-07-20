@@ -27,12 +27,13 @@ const DashboardSidebar = () => {
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
     { name: 'Add Career', icon: Plus, path: '/dashboard/add' },
     { name: 'Manage Careers', icon: Briefcase, path: '/dashboard/manage' },
-
     { name: 'AI Chat', icon: MessageSquare, path: '/dashboard/ai-chat' },
+    { name: 'AI Image Understanding', icon: MessageSquare, path: '/dashboard/ai-image' },
     { name: 'Profile', icon: User, path: '/dashboard/profile' },
     { name: 'My Applications', icon: Dock, path: '/dashboard/applications' },
     { name: 'Saved', icon: Bookmark, path: '/dashboard/saved' },
   ];
+
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
