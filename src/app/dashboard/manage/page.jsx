@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Briefcase, MapPin, DollarSign, Calendar, Trash2, Edit, AlertCircle, Loader2 } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { getAuthHeaders } from '@/lib/api-auth';
 import { toast, Toaster } from 'sonner';
 
 export default function ManageCareers() {
@@ -32,7 +33,9 @@ export default function ManageCareers() {
                 const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
 
-                const response = await fetch(`${baseURL}/api/my-careers?userId=${sessionData.user.id}`);
+                const response = await fetch(`${baseURL}/api/my-careers?userId=${sessionData.user.id}`, {
+                    headers: await getAuthHeaders(),
+                });
                 const data = await response.json();
 
                 if (!response.ok) {
@@ -61,7 +64,8 @@ export default function ManageCareers() {
         try {
             const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
             const response = await fetch(`${baseURL}/api/careers/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: await getAuthHeaders(),
             });
             const data = await response.json();
 

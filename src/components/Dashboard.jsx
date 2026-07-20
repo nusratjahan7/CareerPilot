@@ -23,6 +23,7 @@ import {
     User,
     AlertCircle,
 } from "lucide-react";
+import { getAuthHeaders } from "@/lib/api-auth";
 
 
 const THEMES = {
@@ -96,10 +97,11 @@ export default function Dashboard({ userId = null, apiBaseUrl = "" }) {
         setLoading(true);
         setError(null);
         try {
+            const headers = await getAuthHeaders();
             const [profileRes, applicationsRes, savedRes] = await Promise.all([
-                fetch(`${apiBaseUrl}/api/profile/${userId}`),
-                fetch(`${apiBaseUrl}/api/applications?userId=${userId}`),
-                fetch(`${apiBaseUrl}/api/saved-careers?userId=${userId}`),
+                fetch(`${apiBaseUrl}/api/profile/${userId}`, { headers }),
+                fetch(`${apiBaseUrl}/api/applications?userId=${userId}`, { headers }),
+                fetch(`${apiBaseUrl}/api/saved-careers?userId=${userId}`, { headers }),
             ]);
 
             const [profileJson, applicationsJson, savedJson] = await Promise.all([

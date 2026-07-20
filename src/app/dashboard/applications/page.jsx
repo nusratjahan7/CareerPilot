@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { authClient } from '@/lib/auth-client';
+import { getAuthHeaders } from '@/lib/api-auth';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL + "/api/applications";
 
@@ -81,7 +82,8 @@ export default function Applications() {
         setLoadState('loading');
 
 
-        fetch(`${API_URL}?userId=${userId}`)
+        getAuthHeaders()
+            .then((headers) => fetch(`${API_URL}?userId=${userId}`, { headers }))
             .then((res) => {
                 return res.json().then(data => {
                     if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);

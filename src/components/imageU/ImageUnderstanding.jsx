@@ -1,6 +1,7 @@
 "use client"
 import React, { useCallback, useRef, useState } from "react";
 import { Upload, Image as ImageIcon, Sparkles, Tag, X, Loader2, AlertCircle } from "lucide-react";
+import { getAuthHeaders } from "@/lib/api-auth";
 
 const THEME = {
     bg: "#0a0a0a",
@@ -67,7 +68,10 @@ export default function ImageUnderstanding({ apiBaseUrl = "" }) {
             const imageBase64 = await fileToBase64(file);
             const res = await fetch(`${apiBaseUrl}/api/image-understanding`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(await getAuthHeaders()),
+                },
                 body: JSON.stringify({ imageBase64, mimeType: file.type }),
             });
             const json = await res.json();

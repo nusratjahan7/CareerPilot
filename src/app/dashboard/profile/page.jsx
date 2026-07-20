@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { authClient } from '@/lib/auth-client';
+import { getAuthHeaders } from '@/lib/api-auth';
 const API_BASE = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/profile`;
 
 
@@ -31,7 +32,8 @@ export default function Profile() {
         let cancelled = false;
         setLoadState('loading');
 
-        fetch(`${API_BASE}/${userId}`)
+        getAuthHeaders()
+            .then((headers) => fetch(`${API_BASE}/${userId}`, { headers }))
             .then((res) => {
                 if (!res.ok) throw new Error(`Request failed: ${res.status}`);
                 return res.json();
@@ -86,7 +88,10 @@ export default function Profile() {
 
             const res = await fetch(API_BASE, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(await getAuthHeaders()),
+                },
                 body: JSON.stringify(body),
             });
 

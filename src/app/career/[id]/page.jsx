@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
+import { getAuthHeaders } from '@/lib/api-auth';
 
 const Details = () => {
     const params = useParams();
@@ -12,7 +13,7 @@ const Details = () => {
     const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 
-    const { data: session } = authClient.useSession();
+    const { data: session, isPending: sessionLoading } = authClient.useSession();
     const userId = session?.user?.id || session?.user?._id || null;
 
     const [career, setCareer] = useState(null);
@@ -26,12 +27,20 @@ const Details = () => {
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
+        if (!sessionLoading && !userId) {
+            router.push(`/login?redirect=/careers/${id}`);
+        }
+    }, [sessionLoading, userId, id, router]);
+
+    useEffect(() => {
         const fetchCareerDetails = async () => {
             try {
                 setLoading(true);
                 setError(null);
 
-                const response = await fetch(`${baseURL}/api/careers/${id}`);
+                const response = await fetch(`${baseURL}/api/careers/${id}`, {
+                    headers: await getAuthHeaders(),
+                });
                 if (!response.ok) {
                     throw new Error('Career details not found or Server Error');
                 }
@@ -82,7 +91,10 @@ const Details = () => {
             try {
                 const res = await fetch(`${baseURL}/api/saved-careers`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(await getAuthHeaders()),
+                    },
 
                     body: JSON.stringify({ careerId: id, userId: userId }),
                 });
@@ -138,7 +150,10 @@ const Details = () => {
 
                 const response = await fetch(`${baseURL}/api/applications`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(await getAuthHeaders()),
+                    },
                     body: JSON.stringify(bodyData),
                 });
 
@@ -165,7 +180,7 @@ const Details = () => {
         });
     };
 
-    if (loading) {
+    if (loading || sessionLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-[#0f172a] text-slate-400">
                 <p className="text-xl animate-pulse font-medium">Loading career insights...</p>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { getAuthHeaders } from "@/lib/api-auth";
 import CareerCard from "@/components/career/CareerCard";
 
 const API =
@@ -20,7 +21,9 @@ const Saved = () => {
 
         const loadSaved = async () => {
             try {
-                const res = await fetch(`${API}?userId=${userId}`);
+                const res = await fetch(`${API}?userId=${userId}`, {
+                    headers: await getAuthHeaders(),
+                });
 
                 const data = await res.json();
 

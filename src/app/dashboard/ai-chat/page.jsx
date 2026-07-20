@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { getAuthHeaders } from '@/lib/api-auth';
 const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/chat`;
 
 const SUGGESTED_PROMPTS = [
@@ -121,7 +122,10 @@ export default function AiChat() {
 
             const res = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(await getAuthHeaders()),
+                },
                 body: JSON.stringify({ sessionId, messages: historyForContext }),
                 signal: controller.signal,
             });

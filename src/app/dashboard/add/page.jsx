@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Plus, AlertCircle } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { getAuthHeaders } from '@/lib/api-auth';
 import { toast, Toaster } from 'sonner';
 
 export default function CareerAdd() {
@@ -45,16 +46,13 @@ export default function CareerAdd() {
         try {
             const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
-            const tokenResponse = await authClient.token();
-            const token = tokenResponse?.data?.token;
-
             if (!sessionData?.user) {
                 throw new Error("You must be logged in to submit a career listing.");
             }
 
             const headers = {
                 "Content-Type": "application/json",
-                ...(token && { "Authorization": `Bearer ${token}` })
+                ...(await getAuthHeaders()),
             };
 
             const submissionData = {
